@@ -16,6 +16,8 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.set('trust proxy', 1);
+
 // Rate limit for registration
 const regLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 min
