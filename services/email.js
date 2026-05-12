@@ -4,16 +4,19 @@ let transporter = null;
 
 function getTransporter() {
   if (transporter) return transporter;
-  const { SMTP_USER, SMTP_PASS } = process.env;
+  const { SMTP_USER, SMTP_PASS, SMTP_HOST, SMTP_PORT } = process.env;
   if (!SMTP_USER || SMTP_USER === 'your-email@gmail.com') return null;
 
-  // Use Gmail's direct service with OAuth-like XOAuth2 or App Password
+  const port = Number(SMTP_PORT) || 587;
   transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: SMTP_HOST || 'smtp.gmail.com',
+    port: port,
+    secure: port === 465,  // true for 465 (SSL), false for 587 (STARTTLS)
     auth: {
       user: SMTP_USER,
       pass: SMTP_PASS
-    }
+    },
+    connectionTimeout: 10000, // 10 second timeout
   });
   return transporter;
 }
