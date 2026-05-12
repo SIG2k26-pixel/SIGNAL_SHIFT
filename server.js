@@ -15,6 +15,7 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+app.set('trust proxy', true); // Trust Render's proxy
 
 app.set('trust proxy', 1);
 
