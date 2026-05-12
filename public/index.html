@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+    content="Signal Shift — National Level Hackathon 2026. Register now for the ultimate innovation challenge at SIMATS Engineering, Saveetha University.">
+  <title>Signal Shift | National Level Hackathon 2026</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+</head>
+
+<body>
+
+  <!-- LOADER -->
+  <div id="loader">
+    <div class="logo-text">Signal Shift</div>
+    <div class="loader-bar">
+      <div class="loader-bar-fill"></div>
+    </div>
+  </div>
+
+  <!-- CURSOR LIGHT -->
+  <div id="cursor-light"></div>
+
+  <!-- PARTICLES -->
+  <canvas id="particles-canvas"></canvas>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div id="vanta-bg"></div>
+    <div class="hero-content" id="hero-content">
+      <h1 id="main-title">Signal Shift</h1>
+      <p class="subtitle">National Level Hackathon 2026</p>
+      <p class="dept">Organized by Signal &amp; Image Processing Department</p>
+      <p class="college">SIMATS Engineering, Saveetha University</p>
+
+      <div class="countdown" id="countdown">
+        <div class="countdown-item"><span class="number" id="cd-days">00</span><span class="label">Days</span></div>
+        <div class="countdown-item"><span class="number" id="cd-hours">00</span><span class="label">Hours</span></div>
+        <div class="countdown-item"><span class="number" id="cd-mins">00</span><span class="label">Minutes</span></div>
+        <div class="countdown-item"><span class="number" id="cd-secs">00</span><span class="label">Seconds</span></div>
+      </div>
+
+      <a href="#register" class="cta-btn" id="cta-register">
+        ⚡ Register Now
+      </a>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section class="section" id="about">
+    <h2 class="section-title">Why Signal Shift?</h2>
+    <div class="about-grid">
+      <div class="about-card">
+        <div class="card-icon">🚀</div>
+        <h3>Innovate</h3>
+        <p>Build groundbreaking solutions. Push the boundaries of what's possible with cutting-edge technology.</p>
+      </div>
+      <div class="about-card">
+        <div class="card-icon">🏆</div>
+        <h3>Compete</h3>
+        <p>Compete against the best minds from across the nation. Win exciting prizes and gain industry recognition.</p>
+      </div>
+      <div class="about-card">
+        <div class="card-icon">🤝</div>
+        <h3>Connect</h3>
+        <p>Network with industry experts, mentors, and fellow innovators. Build connections that last a lifetime.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- REGISTRATION -->
+  <section class="section" id="register">
+    <h2 class="section-title">Register Your Team</h2>
+    <div class="form-container">
+      <form id="reg-form" novalidate>
+        <div class="form-group">
+          <label for="fullName">Full Name</label>
+          <input type="text" id="fullName" name="fullName" placeholder="Enter your full name" required>
+          <div class="error-msg" id="err-fullName"></div>
+        </div>
+        <div class="form-group">
+          <label for="regNumber">Register Number</label>
+          <input type="text" id="regNumber" name="regNumber" placeholder="Enter register number" required>
+          <div class="error-msg" id="err-regNumber"></div>
+        </div>
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" name="email" placeholder="example@email.com" required>
+          <div class="error-msg" id="err-email"></div>
+        </div>
+        <div class="form-group">
+          <label for="phone">Phone Number</label>
+          <input type="tel" id="phone" name="phone" placeholder="10-digit phone number" required maxlength="10">
+          <div class="error-msg" id="err-phone"></div>
+        </div>
+        <div class="form-group">
+          <label for="department">Department</label>
+          <select id="department" name="department" required>
+            <option value="">Select Department</option>
+            <option>Computer Science & Engineering</option>
+            <option>Information Technology</option>
+            <option>Electronics & Communication</option>
+            <option>Electrical & Electronics</option>
+            <option>Mechanical Engineering</option>
+            <option>Civil Engineering</option>
+            <option>Biomedical Engineering</option>
+            <option>Artificial Intelligence & ML</option>
+            <option>Data Science</option>
+            <option>Other</option>
+          </select>
+          <div class="error-msg" id="err-department"></div>
+        </div>
+        <div class="form-group">
+          <label for="college">College Name</label>
+          <input type="text" id="college" name="college" placeholder="Enter your college name" required>
+          <div class="error-msg" id="err-college"></div>
+        </div>
+        <div class="form-group">
+          <label for="teamName">Team Name</label>
+          <input type="text" id="teamName" name="teamName" placeholder="Enter your team name" required>
+          <div class="error-msg" id="err-teamName"></div>
+        </div>
+        <div class="form-group">
+          <label for="transactionId">Transaction ID</label>
+          <input type="text" id="transactionId" name="transactionId" placeholder="Payment transaction ID" required>
+          <div class="error-msg" id="err-transactionId"></div>
+        </div>
+        <button type="submit" class="submit-btn" id="submit-btn">
+          <span class="btn-text">⚡ Submit Registration</span>
+          <div class="spinner"></div>
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <!-- SUCCESS MODAL -->
+  <div class="modal-overlay" id="success-modal">
+    <div class="modal success">
+      <div class="modal-icon">🎉</div>
+      <h3>Registration Successful!</h3>
+      <p id="success-msg">Welcome aboard! Check your email for confirmation.</p>
+      <button class="modal-btn" id="download-receipt">📄 Download Receipt</button>
+      <button class="modal-btn outline"
+        onclick="document.getElementById('success-modal').classList.remove('active')">Close</button>
+    </div>
+  </div>
+
+  <!-- ERROR MODAL -->
+  <div class="modal-overlay" id="error-modal">
+    <div class="modal error">
+      <div class="modal-icon">⚠️</div>
+      <h3>Registration Failed</h3>
+      <p id="error-msg">Something went wrong. Please try again.</p>
+      <button class="modal-btn" onclick="document.getElementById('error-modal').classList.remove('active')">Try
+        Again</button>
+    </div>
+  </div>
+
+  <!-- MUSIC TOGGLE -->
+  <button class="music-toggle" id="music-toggle" title="Toggle Music">🔇</button>
+  <audio id="bg-music" loop preload="none">
+    <source src="assets/sounds/bg.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>© 2026 Signal Shift — National Level Hackathon | SIMATS Engineering, Saveetha University</p>
+    <p style="margin-top:0.5rem"><a href="admin.html">Admin Portal</a></p>
+  </footer>
+
+  <!-- SCRIPTS (CDN) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vanta/0.5.24/vanta.net.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/register.js"></script>
+</body>
+
+</html>
