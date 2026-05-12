@@ -26,11 +26,21 @@ async function getClient() {
   // Support credentials from env variable (for deployment) or file path
   let auth;
   if (process.env.GOOGLE_CREDENTIALS_JSON) {
-    const credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS_JSON);
-    auth = new google.auth.GoogleAuth({
-      credentials,
-      scopes: ['https://www.googleapis.com/auth/spreadsheets']
-    });
+    try {
+      const credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS_JSON);
+      // Fix: Render env vars turn \n into literal \\n in private_key — fix it back
+      if (credentials.private_key) {
+        credentials.private_key = credentials.private_key.replace(/\\n/g, '\n');
+      }
+      auth = new google.auth.GoogleAuth({
+        credentials,
+        scopes: ['https://www.googleapis.com/auth/spreadsheets']
+      });
+      console.log('Google Sheets: using GOOGLE_CREDENTIALS_JSON env var');
+    } catch (e) {
+      console.error('Google Sheets: failed to parse GOOGLE_CREDENTIALS_JSON —', e.message);
+      return null;
+    }
   } else {
     const credPath = path.resolve(process.env.GOOGLE_CREDENTIALS_PATH || './credentials.json');
     if (!fs.existsSync(credPath)) {
@@ -41,12 +51,20 @@ async function getClient() {
       keyFile: credPath,
       scopes: ['https://www.googleapis.com/auth/spreadsheets']
     });
+    console.log('Google Sheets: using credentials file at', credPath);
   }
 
-  const authClient = await auth.getClient();
-  sheetsClient = google.sheets({ version: 'v4', auth: authClient });
-  return sheetsClient;
+  try {
+    const authClient = await auth.getClient();
+    sheetsClient = google.sheets({ version: 'v4', auth: authClient });
+    console.log('Google Sheets: client initialized successfully');
+    return sheetsClient;
+  } catch (e) {
+    console.error('Google Sheets: auth failed —', e.message);
+    return null;
+  }
 }
+
 
 // Fetch all rows from the sheet (cached for 5 seconds to avoid excessive API calls)
 let rowsCache = null;
