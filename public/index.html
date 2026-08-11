@@ -37,6 +37,16 @@
       <p class="dept">Organized by Signal &amp; Image Processing Department</p>
       <p class="college">SIMATS Engineering, Saveetha University</p>
 
+      <div class="prize-pool-wrap">
+        <div class="prize-pool-badge" id="prize-pool-badge">
+          <div class="prize-row">
+            <span class="prize-icon">🏆</span>
+            <span class="prize-label">Prize Pool</span>
+          </div>
+          <span class="prize-amount">₹20,000 INR</span>
+        </div>
+      </div>
+
       <div class="countdown" id="countdown">
         <div class="countdown-item"><span class="number" id="cd-days">00</span><span class="label">Days</span></div>
         <div class="countdown-item"><span class="number" id="cd-hours">00</span><span class="label">Hours</span></div>
@@ -72,68 +82,129 @@
     </div>
   </section>
 
+  <!-- DOMAINS -->
+  <section class="section" id="domains">
+    <h2 class="section-title">Problem Domains</h2>
+    <div class="domains-grid">
+      <div class="domain-card">
+        <div class="domain-icon">💰</div>
+        <h3>Smart Finances</h3>
+        <p>Revolutionize fintech with AI-driven insights, digital wallets, and next-gen banking solutions.</p>
+      </div>
+      <div class="domain-card">
+        <div class="domain-icon">🧬</div>
+        <h3>Bio Matrix</h3>
+        <p>Merge biology with technology — bioinformatics, health analytics, and biomedical breakthroughs.</p>
+      </div>
+      <div class="domain-card">
+        <div class="domain-icon">🌱</div>
+        <h3>Sustainability &amp; Climate Change</h3>
+        <p>Build eco-smart solutions for a greener planet — clean energy, carbon tracking &amp; climate resilience.</p>
+      </div>
+      <div class="domain-card">
+        <div class="domain-icon">🥽</div>
+        <h3>AR / VR</h3>
+        <p>Craft immersive augmented and virtual reality experiences that reshape how we interact with the world.</p>
+      </div>
+      <div class="domain-card">
+        <div class="domain-icon">🤖</div>
+        <h3>AI &amp; ML</h3>
+        <p>Harness artificial intelligence and machine learning to automate, predict, and transform industries.</p>
+      </div>
+      <div class="domain-card">
+        <div class="domain-icon">📡</div>
+        <h3>IoT &amp; Smart Infrastructure</h3>
+        <p>Connect the physical and digital — smart cities, sensor networks, and intelligent infrastructure.</p>
+      </div>
+    </div>
+  </section>
+
   <!-- REGISTRATION -->
   <section class="section" id="register">
     <h2 class="section-title">Register Your Team</h2>
-    <div class="form-container">
-      <form id="reg-form" novalidate>
-        <div class="form-group">
-          <label for="fullName">Full Name</label>
-          <input type="text" id="fullName" name="fullName" placeholder="Enter your full name" required>
-          <div class="error-msg" id="err-fullName"></div>
+    <div class="register-wrapper">
+
+      <!-- PAYMENT DETAILS -->
+      <div class="payment-container">
+        <h3>Payment Details</h3>
+        <p class="payment-instruction">Scan the QR code or use the bank details below to pay the registration fee and
+          scroll down to fill the form.</p>
+        <img src="images/qr-code.jpeg" alt="Payment QR Code" class="qr-image">
+        <div class="bank-details">
+          <p><span>Bank Name:</span> INDIAN BANK</p>
+          <p><span>Branch:</span> VALARPURAM</p>
+          <p><span>IFSC CODE:</span> IDIB000V060</p>
+          <p><span>Account Number:</span> 6074883871</p>
+          <p><span>A/C Name:</span> SAVEETHA SCHOOL OF ENGINEERING CME-SEM-WORKSHOP - A-c</p>
         </div>
-        <div class="form-group">
-          <label for="regNumber">Register Number</label>
-          <input type="text" id="regNumber" name="regNumber" placeholder="Enter register number" required>
-          <div class="error-msg" id="err-regNumber"></div>
-        </div>
-        <div class="form-group">
-          <label for="email">Email Address</label>
-          <input type="email" id="email" name="email" placeholder="example@email.com" required>
-          <div class="error-msg" id="err-email"></div>
-        </div>
-        <div class="form-group">
-          <label for="phone">Phone Number</label>
-          <input type="tel" id="phone" name="phone" placeholder="10-digit phone number" required maxlength="10">
-          <div class="error-msg" id="err-phone"></div>
-        </div>
-        <div class="form-group">
-          <label for="department">Department</label>
-          <select id="department" name="department" required>
-            <option value="">Select Department</option>
-            <option>Computer Science & Engineering</option>
-            <option>Information Technology</option>
-            <option>Electronics & Communication</option>
-            <option>Electrical & Electronics</option>
-            <option>Mechanical Engineering</option>
-            <option>Civil Engineering</option>
-            <option>Biomedical Engineering</option>
-            <option>Artificial Intelligence & ML</option>
-            <option>Data Science</option>
-            <option>Other</option>
-          </select>
-          <div class="error-msg" id="err-department"></div>
-        </div>
-        <div class="form-group">
-          <label for="college">College Name</label>
-          <input type="text" id="college" name="college" placeholder="Enter your college name" required>
-          <div class="error-msg" id="err-college"></div>
-        </div>
-        <div class="form-group">
-          <label for="teamName">Team Name</label>
-          <input type="text" id="teamName" name="teamName" placeholder="Enter your team name" required>
-          <div class="error-msg" id="err-teamName"></div>
-        </div>
-        <div class="form-group">
-          <label for="transactionId">Transaction ID</label>
-          <input type="text" id="transactionId" name="transactionId" placeholder="Payment transaction ID" required>
-          <div class="error-msg" id="err-transactionId"></div>
-        </div>
-        <button type="submit" class="submit-btn" id="submit-btn">
-          <span class="btn-text">⚡ Submit Registration</span>
-          <div class="spinner"></div>
-        </button>
-      </form>
+      </div>
+
+      <div class="form-container">
+        <form id="reg-form" novalidate>
+          <div class="form-group">
+            <label for="fullName">Full Name</label>
+            <input type="text" id="fullName" name="fullName" placeholder="Enter your full name" required>
+            <div class="error-msg" id="err-fullName"></div>
+          </div>
+          <div class="form-group">
+            <label for="regNumber">Register Number</label>
+            <input type="text" id="regNumber" name="regNumber" placeholder="Enter register number" required>
+            <div class="error-msg" id="err-regNumber"></div>
+          </div>
+          <div class="form-group">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" name="email" placeholder="example@email.com" required>
+            <div class="error-msg" id="err-email"></div>
+          </div>
+          <div class="form-group">
+            <label for="phone">Phone Number</label>
+            <input type="tel" id="phone" name="phone" placeholder="10-digit phone number" required maxlength="10">
+            <div class="error-msg" id="err-phone"></div>
+          </div>
+          <div class="form-group">
+            <label for="department">Department</label>
+            <select id="department" name="department" required>
+              <option value="">Select Department</option>
+              <option>Computer Science & Engineering</option>
+              <option>Information Technology</option>
+              <option>Electronics & Communication</option>
+              <option>Electrical & Electronics</option>
+              <option>Mechanical Engineering</option>
+              <option>Civil Engineering</option>
+              <option>Biomedical Engineering</option>
+              <option>Artificial Intelligence & ML</option>
+              <option>Data Science</option>
+              <option>Other</option>
+            </select>
+            <div class="error-msg" id="err-department"></div>
+          </div>
+          <div class="form-group">
+            <label for="college">College Name</label>
+            <input type="text" id="college" name="college" placeholder="Enter your college name" required>
+            <div class="error-msg" id="err-college"></div>
+          </div>
+          <div class="form-group">
+            <label for="teamName">Team Name</label>
+            <input type="text" id="teamName" name="teamName" placeholder="Enter your team name" required>
+            <div class="error-msg" id="err-teamName"></div>
+          </div>
+          <div class="form-group">
+            <label for="teamCode">Team Code</label>
+            <input type="text" id="teamCode" name="teamCode" placeholder="Enter your team code" maxlength="30" autocomplete="off" required>
+            <div class="field-hint">Enter the team code provided to you. Each code can be used up to 5 times.</div>
+            <div class="error-msg" id="err-teamCode"></div>
+          </div>
+          <div class="form-group">
+            <label for="transactionId">Transaction ID</label>
+            <input type="text" id="transactionId" name="transactionId" placeholder="Payment transaction ID" required>
+            <div class="error-msg" id="err-transactionId"></div>
+          </div>
+          <button type="submit" class="submit-btn" id="submit-btn">
+            <span class="btn-text">⚡ Submit Registration</span>
+            <div class="spinner"></div>
+          </button>
+        </form>
+      </div>
     </div>
   </section>
 
@@ -165,6 +236,25 @@
   <audio id="bg-music" loop preload="none">
     <source src="assets/sounds/bg.mp3" type="audio/mpeg">
   </audio>
+
+  <!-- CONTACTS -->
+  <section class="section" id="contacts">
+    <h2 class="section-title">Contact Us</h2>
+    <div class="contacts-grid">
+      <div class="contact-card">
+        <div class="contact-icon">📞</div>
+        <h3 class="contact-name">Shiva Reddy</h3>
+        <p class="contact-role">Convener</p>
+        <a href="tel:9490111767" class="contact-number">9490111767</a>
+      </div>
+      <div class="contact-card">
+        <div class="contact-icon">📞</div>
+        <h3 class="contact-name">Soorya</h3>
+        <p class="contact-role">PR Lead</p>
+        <a href="tel:7810098030" class="contact-number">7810098030</a>
+      </div>
+    </div>
+  </section>
 
   <!-- FOOTER -->
   <footer>

@@ -23,28 +23,86 @@
     <!-- DASHBOARD -->
     <div id="admin-dash" style="display:none">
       <div class="admin-header">
-        <h2 class="section-title" style="margin-bottom:0;text-align:left">Signal Shift Registrations</h2>
+        <h2 class="section-title" style="margin-bottom:0;text-align:left">Signal Shift Admin</h2>
         <div style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap">
-          <input type="text" class="search-input" id="search" placeholder="🔍 Search registrations...">
-          <button class="modal-btn" id="export-btn">📥 Export CSV</button>
-          <a href="/" class="modal-btn outline" style="text-decoration:none">← Back</a>
+          <a href="/" class="modal-btn outline" style="text-decoration:none">← Back to Site</a>
         </div>
       </div>
-      <div class="stats-grid" id="stats-grid">
-        <div class="stat-card"><span class="stat-num" id="stat-total">0</span><span class="stat-label">Total</span></div>
-        <div class="stat-card"><span class="stat-num" id="stat-latest">—</span><span class="stat-label">Latest</span></div>
+
+      <!-- TABS -->
+      <div class="admin-tabs">
+        <button class="admin-tab active" id="tab-registrations" onclick="switchTab('registrations')">📋 Registrations</button>
+        <button class="admin-tab" id="tab-codes" onclick="switchTab('codes')">🔑 Team Codes</button>
       </div>
-      <div class="admin-table-wrap">
-        <table class="admin-table">
-          <thead>
-            <tr>
-              <th>#</th><th>Timestamp</th><th>Name</th><th>Reg No</th><th>Email</th>
-              <th>Phone</th><th>Department</th><th>College</th><th>Team</th><th>Txn ID</th>
-            </tr>
-          </thead>
-          <tbody id="reg-tbody"></tbody>
-        </table>
+
+      <!-- REGISTRATIONS PANEL -->
+      <div id="panel-registrations">
+        <div class="admin-header" style="margin-top:1rem">
+          <div style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap;width:100%">
+            <input type="text" class="search-input" id="search" placeholder="🔍 Search registrations...">
+            <button class="modal-btn" id="export-btn">📥 Export CSV</button>
+          </div>
+        </div>
+        <div class="stats-grid" id="stats-grid">
+          <div class="stat-card"><span class="stat-num" id="stat-total">0</span><span class="stat-label">Total Registrations</span></div>
+          <div class="stat-card"><span class="stat-num" id="stat-latest">—</span><span class="stat-label">Latest Entry</span></div>
+        </div>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>#</th><th>Timestamp</th><th>Name</th><th>Reg No</th><th>Email</th>
+                <th>Phone</th><th>Department</th><th>College</th><th>Team</th><th>Txn ID</th><th>Team Code</th>
+              </tr>
+            </thead>
+            <tbody id="reg-tbody"></tbody>
+          </table>
+        </div>
       </div>
+
+      <!-- TEAM CODES PANEL -->
+      <div id="panel-codes" style="display:none">
+        <div class="admin-header" style="margin-top:1rem">
+          <h3 style="color:var(--accent);margin:0">Team Codes Manager</h3>
+          <p style="color:var(--text-muted);margin:0.5rem 0 0">Each code can be used up to its configured limit. Add codes here for participants.</p>
+        </div>
+
+        <!-- Add Code Form -->
+        <div class="form-container" style="max-width:500px;margin:1.5rem 0">
+          <h4 style="color:var(--text);margin-bottom:1rem">➕ Add New Team Code</h4>
+          <div class="form-group">
+            <label for="new-code">Team Code</label>
+            <input type="text" id="new-code" placeholder="e.g. HACKSS2026" maxlength="30" autocomplete="off">
+            <div class="error-msg" id="err-new-code"></div>
+          </div>
+          <div class="form-group">
+            <label for="new-max-uses">Max Uses <span class="optional-label">(default: 5)</span></label>
+            <input type="number" id="new-max-uses" placeholder="5" min="1" max="1000" value="5">
+          </div>
+          <button class="submit-btn" id="add-code-btn" style="width:auto;padding:0.75rem 2rem">
+            <span class="btn-text">➕ Add Code</span>
+            <div class="spinner"></div>
+          </button>
+          <div id="add-code-msg" style="margin-top:0.75rem;font-size:0.9rem"></div>
+        </div>
+
+        <!-- Codes Table -->
+        <div class="stats-grid" id="codes-stats" style="margin-bottom:1rem">
+          <div class="stat-card"><span class="stat-num" id="stat-codes-total">0</span><span class="stat-label">Total Codes</span></div>
+          <div class="stat-card"><span class="stat-num" id="stat-codes-active">0</span><span class="stat-label">Codes With Uses Left</span></div>
+        </div>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>#</th><th>Code</th><th>Uses</th><th>Max Uses</th><th>Remaining</th><th>Created At</th>
+              </tr>
+            </thead>
+            <tbody id="codes-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
     </div>
   </div>
   <script src="js/admin.js"></script>

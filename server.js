@@ -39,7 +39,8 @@ app.post('/api/register',
     body('department').trim().notEmpty().withMessage('Department required'),
     body('college').trim().isLength({ min: 2 }).withMessage('College required'),
     body('teamName').trim().isLength({ min: 2 }).withMessage('Team name required'),
-    body('transactionId').trim().isLength({ min: 2 }).withMessage('Transaction ID required')
+    body('transactionId').trim().isLength({ min: 2 }).withMessage('Transaction ID required'),
+    body('teamCode').trim().isLength({ min: 2, max: 30 }).withMessage('Team code is required')
   ],
   async (req, res) => {
     // Validation errors
@@ -59,11 +60,12 @@ app.post('/api/register',
       department: req.body.department.trim(),
       college: req.body.college.trim(),
       teamName: req.body.teamName.trim(),
-      transactionId: req.body.transactionId.trim()
+      transactionId: req.body.transactionId.trim(),
+      teamCode: (req.body.teamCode || '').trim()
     };
 
     try {
-      // Check duplicates via Google Sheets
+      // Check duplicates via Google Sheets (checks both Sheet1 + Sheet2)
       const dupReg = await sheets.checkDuplicate('regNumber', data.regNumber);
       if (dupReg) {
         return res.status(409).json({
@@ -79,7 +81,18 @@ app.post('/api/register',
         });
       }
 
-      // Save to Google Sheets
+      // Validate team code if provided
+      if (data.teamCode) {
+        const codeResult = await sheets.checkAndUseTeamCode(data.teamCode);
+        if (!codeResult.valid) {
+          return res.status(400).json({
+            success: false,
+            message: codeResult.reason
+          });
+        }
+      }
+
+      // Save to Sheet2 (Sheet1 is never modified)
       await sheets.addRegistration(data);
 
       // Send email (non-blocking)
@@ -94,7 +107,7 @@ app.post('/api/register',
   }
 );
 
-// ===== GET REGISTRATIONS (Admin) =====
+// ===== GET REGISTRATIONS (Admin) — reads from Sheet2 =====
 app.get('/api/registrations', async (req, res) => {
   const password = req.headers['x-admin-password'];
   if (password !== process.env.ADMIN_PASSWORD) {
@@ -115,6 +128,49 @@ app.get('/api/check-duplicate', async (req, res) => {
   const dup = await sheets.checkDuplicate(field, value);
   res.json({ duplicate: dup });
 });
+
+// ===== TEAM CODES (Admin) =====
+
+// GET all team codes
+app.get('/api/team-codes', async (req, res) => {
+  const password = req.headers['x-admin-password'];
+  if (password !== process.env.ADMIN_PASSWORD) {
+    return res.status(401).json({ success: false, message: 'Unauthorized' });
+  }
+  try {
+    const codes = await sheets.getAllTeamCodes();
+    res.json({ success: true, codes });
+  } catch (err) {
+    console.error('Team codes fetch error:', err);
+    res.status(500).json({ success: false, message: 'Error reading team codes' });
+  }
+});
+
+// POST add a new team code
+app.post('/api/team-codes',
+  [
+    body('code').trim().isLength({ min: 2, max: 30 }).withMessage('Code must be 2–30 characters'),
+    body('maxUses').optional().isInt({ min: 1, max: 1000 }).withMessage('Max uses must be 1–1000')
+  ],
+  async (req, res) => {
+    const password = req.headers['x-admin-password'];
+    if (password !== process.env.ADMIN_PASSWORD) {
+      return res.status(401).json({ success: false, message: 'Unauthorized' });
+    }
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ success: false, message: errors.array()[0].msg });
+    }
+    try {
+      const maxUses = parseInt(req.body.maxUses || '5', 10);
+      await sheets.addTeamCode(req.body.code.trim(), maxUses);
+      res.json({ success: true, message: 'Team code added successfully.' });
+    } catch (err) {
+      console.error('Add team code error:', err);
+      res.status(400).json({ success: false, message: err.message || 'Error adding team code' });
+    }
+  }
+);
 
 // SPA fallback
 app.get('*', (req, res) => {

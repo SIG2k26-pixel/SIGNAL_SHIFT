@@ -13,26 +13,37 @@
   let vantaEffect = null;
   function initVanta() {
     if (typeof VANTA === 'undefined') return;
+    const isMobile = window.innerWidth <= 768;
     try {
       vantaEffect = VANTA.NET({
         el: '#vanta-bg',
-        mouseControls: true,
+        mouseControls: !isMobile,
         touchControls: true,
         gyroControls: false,
         minHeight: 200,
         minWidth: 200,
         scale: 1.0,
-        scaleMobile: 1.0,
+        scaleMobile: 0.6,
         color: 0x00b4d8,
         backgroundColor: 0x0a0a0f,
-        points: 11,
-        maxDistance: 20,
-        spacing: 19,
-        showDots: true
+        points: isMobile ? 7 : 11,
+        maxDistance: isMobile ? 22 : 20,
+        spacing: isMobile ? 25 : 19,
+        showDots: !isMobile
       });
     } catch (e) { console.warn('Vanta init failed:', e); }
   }
   initVanta();
+
+  /* Re-init Vanta on significant resize (e.g. rotate phone) */
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      if (vantaEffect) { vantaEffect.destroy(); vantaEffect = null; }
+      initVanta();
+    }, 300);
+  });
 
   /* ---------- FLOATING PARTICLES ---------- */
   const canvas = document.getElementById('particles-canvas');
@@ -81,7 +92,8 @@
     }
   }
 
-  for (let i = 0; i < 80; i++) particles.push(new Particle());
+  const particleCount = window.innerWidth <= 768 ? 30 : 80;
+  for (let i = 0; i < particleCount; i++) particles.push(new Particle());
 
   function animateParticles() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -111,7 +123,7 @@
   });
 
   /* ---------- COUNTDOWN TIMER ---------- */
-  const eventDate = new Date('2026-06-18T09:00:00+05:30').getTime();
+  const eventDate = new Date('2026-08-28T09:00:00+05:30').getTime();
   function updateCountdown() {
     const now = Date.now();
     const diff = Math.max(0, eventDate - now);
@@ -137,6 +149,27 @@
         scrollTrigger: { trigger: card, start: 'top 85%', toggleActions: 'play none none none' },
         opacity: 0, y: 60, duration: 0.8, delay: i * 0.15, ease: 'power3.out'
       });
+    });
+
+    // Domain cards
+    gsap.utils.toArray('.domain-card').forEach((card, i) => {
+      gsap.from(card, {
+        scrollTrigger: { trigger: card, start: 'top 88%', toggleActions: 'play none none none' },
+        opacity: 0, y: 60, scale: 0.95, duration: 0.75, delay: i * 0.1, ease: 'power3.out'
+      });
+    });
+
+    // Contact cards
+    gsap.utils.toArray('.contact-card').forEach((card, i) => {
+      gsap.from(card, {
+        scrollTrigger: { trigger: card, start: 'top 88%', toggleActions: 'play none none none' },
+        opacity: 0, y: 50, duration: 0.8, delay: i * 0.2, ease: 'power3.out'
+      });
+    });
+
+    // Prize badge
+    gsap.from('#prize-pool-badge', {
+      opacity: 0, scale: 0.8, duration: 0.9, delay: 0.4, ease: 'back.out(1.7)'
     });
 
     // Form container

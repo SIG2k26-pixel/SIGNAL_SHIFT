@@ -20,11 +20,15 @@
     department: v => v ? '' : 'Select a department',
     college: v => v.trim().length >= 2 ? '' : 'College name is required',
     teamName: v => v.trim().length >= 2 ? '' : 'Team name is required',
+    teamCode: v => v.trim().length >= 2 ? '' : 'Team code is required',
     transactionId: v => v.trim().length >= 2 ? '' : 'Transaction ID is required'
   };
 
-  // Real-time validation
-  Object.keys(validators).forEach(field => {
+  // All fields are required (including teamCode)
+  const requiredFields = ['fullName', 'regNumber', 'email', 'phone', 'department', 'college', 'teamName', 'teamCode', 'transactionId'];
+
+  // Real-time validation (required fields only)
+  requiredFields.forEach(field => {
     const el = document.getElementById(field);
     if (!el) return;
     el.addEventListener('input', () => validateField(field));
@@ -48,7 +52,7 @@
 
   function validateAll() {
     let valid = true;
-    Object.keys(validators).forEach(field => {
+    requiredFields.forEach(field => {
       if (!validateField(field)) valid = false;
     });
     return valid;
@@ -56,7 +60,7 @@
 
   function getFormData() {
     const data = {};
-    Object.keys(validators).forEach(field => {
+    requiredFields.forEach(field => {
       data[field] = document.getElementById(field).value.trim();
     });
     return data;
@@ -93,8 +97,23 @@
           setTimeout(() => confetti({ particleCount: 80, spread: 100, origin: { y: 0.5 } }), 300);
         }
       } else {
-        errorMsg.textContent = result.message || 'Registration failed. Please try again.';
-        errorModal.classList.add('active');
+        // Show inline error for team code issues
+        const msg = result.message || 'Registration failed. Please try again.';
+        if (msg.toLowerCase().includes('team code') || msg.toLowerCase().includes('code')) {
+          const errEl = document.getElementById('err-teamCode');
+          const group = document.getElementById('teamCode').closest('.form-group');
+          if (errEl && group) {
+            group.classList.add('error');
+            errEl.textContent = msg;
+            document.getElementById('teamCode').scrollIntoView({ behavior: 'smooth', block: 'center' });
+          } else {
+            errorMsg.textContent = msg;
+            errorModal.classList.add('active');
+          }
+        } else {
+          errorMsg.textContent = msg;
+          errorModal.classList.add('active');
+        }
       }
     } catch (err) {
       errorMsg.textContent = 'Network error. Please check your connection.';
@@ -138,6 +157,7 @@
       ['College', d.college],
       ['Team', d.teamName],
       ['Transaction ID', d.transactionId],
+      ...(d.teamCode ? [['Team Code', d.teamCode.toUpperCase()]] : []),
       ['Date', new Date().toLocaleString('en-IN')]
     ];
 

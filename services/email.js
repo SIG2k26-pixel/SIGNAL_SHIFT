@@ -1,32 +1,13 @@
-const nodemailer = require('nodemailer');
-
-let transporter = null;
-
-function getTransporter() {
-  if (transporter) return transporter;
-  const { SMTP_USER, SMTP_PASS, SMTP_HOST, SMTP_PORT } = process.env;
-  if (!SMTP_USER || SMTP_USER === 'your-email@gmail.com') return null;
-
-  const port = Number(SMTP_PORT) || 587;
-  transporter = nodemailer.createTransport({
-    host: SMTP_HOST || 'smtp.gmail.com',
-    port: port,
-    secure: port === 465,  // true for 465 (SSL), false for 587 (STARTTLS)
-    auth: {
-      user: SMTP_USER,
-      pass: SMTP_PASS
-    },
-    connectionTimeout: 10000, // 10 second timeout
-  });
-  return transporter;
-}
+/**
+ * Brevo (Sendinblue) API integration — sends transactional email over HTTPS.
+ * No SMTP needed, works perfectly on Render.
+ * Free tier: 300 emails/day, Gmail sender verification supported.
+ */
 
 async function sendConfirmation(data) {
-  const t = getTransporter();
-  if (!t) {
-    console.warn('Email: SMTP not configured, skipping.');
-    return;
-  }
+  const BREVO_API_KEY = process.env.BREVO_API_KEY || '';
+  const SENDER_NAME = 'Signal Shift';
+  const SENDER_EMAIL = 'sigmas2k26@gmail.com';
 
   const html = `
   <div style="background:#0a0a0f;color:#f0f0f0;font-family:Arial,sans-serif;padding:40px 20px;max-width:600px;margin:0 auto;">
@@ -52,15 +33,29 @@ async function sendConfirmation(data) {
   </div>`;
 
   try {
-    const info = await t.sendMail({
-      from: process.env.SMTP_FROM || process.env.SMTP_USER,
-      to: data.email,
-      subject: '✅ Signal Shift 2026 — Registration Confirmed!',
-      html
+    const resp = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'api-key': BREVO_API_KEY
+      },
+      body: JSON.stringify({
+        sender: { name: SENDER_NAME, email: SENDER_EMAIL },
+        to: [{ email: data.email, name: data.fullName }],
+        subject: '✅ Signal Shift 2026 — Registration Confirmed!',
+        htmlContent: html
+      })
     });
-    console.log('Email sent to:', data.email, '| MessageId:', info.messageId);
-  } catch (e) {
-    console.error('Email error:', e.message);
+
+    const result = await resp.json();
+
+    if (!resp.ok) {
+      throw new Error(`Brevo ${resp.status}: ${result.message || JSON.stringify(result)}`);
+    }
+
+    console.log('Brevo email sent, MessageId:', result.messageId);
+  } catch (err) {
+    console.error('Brevo email error:', err.message);
   }
 }
 
