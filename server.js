@@ -95,8 +95,8 @@ app.post('/api/register',
       // Save to Sheet2 (Sheet1 is never modified)
       await sheets.addRegistration(data);
 
-      // Send email (non-blocking)
-      email.sendConfirmation(data).catch(e => console.error('Email async error:', e.message));
+      // Send email (blocking so it completes on serverless; sendConfirmation never throws)
+      await email.sendConfirmation(data);
 
       res.json({ success: true, message: 'Registration successful!' });
 
