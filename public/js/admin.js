@@ -74,10 +74,13 @@
       const teamCodeBadge = r.teamCode
         ? `<span class="code-badge">${r.teamCode.toUpperCase()}</span>`
         : '<span style="color:var(--text-muted)">—</span>';
+      const ssLink = r.screenshotUrl
+        ? `<a href="${r.screenshotUrl}" target="_blank" rel="noopener" style="color:#b347d9;text-decoration:none">🖼️ View</a>`
+        : '<span style="color:var(--text-muted)">—</span>';
       tr.innerHTML = `<td>${i + 1}</td><td>${r.timestamp || ''}</td><td>${r.fullName}</td>
         <td>${r.regNumber}</td><td>${r.email}</td><td>${r.phone}</td>
         <td>${r.department}</td><td>${r.college}</td><td>${r.teamName}</td>
-        <td>${r.transactionId}</td><td>${teamCodeBadge}</td>`;
+        <td>${r.transactionId}</td><td>${teamCodeBadge}</td><td>${ssLink}</td>`;
       tbody.appendChild(tr);
     });
   }
@@ -93,8 +96,8 @@
 
   exportBtn.addEventListener('click', () => {
     if (!allData.length) return;
-    const headers = ['Timestamp', 'Name', 'Reg No', 'Email', 'Phone', 'Department', 'College', 'Team', 'Txn ID', 'Team Code'];
-    const rows = allData.map(r => [r.timestamp, r.fullName, r.regNumber, r.email, r.phone, r.department, r.college, r.teamName, r.transactionId, r.teamCode || '']);
+    const headers = ['Timestamp', 'Name', 'Reg No', 'Email', 'Phone', 'Department', 'College', 'Team', 'Txn ID', 'Team Code', 'Screenshot'];
+    const rows = allData.map(r => [r.timestamp, r.fullName, r.regNumber, r.email, r.phone, r.department, r.college, r.teamName, r.transactionId, r.teamCode || '', r.screenshotUrl || '']);
     let csv = headers.join(',') + '\n' + rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const a = document.createElement('a');

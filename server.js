@@ -4,9 +4,11 @@ const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const { body, validationResult } = require('express-validator');
 const path = require('path');
+const multer = require('multer');
 
 const sheets = require('./services/sheets');
 const email = require('./services/email');
+const drive = require('./services/drive');
 
 const app = express();
 app.set('trust proxy', true); // Trust Render's proxy
@@ -17,6 +19,20 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Multer — in-memory storage (no temp files on disk)
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 4 * 1024 * 1024 } // 4 MB — must stay under Vercel's 4.5 MB function body limit
+});
+
+const ALLOWED_MIME = [
+  'image/png',
+  'image/jpeg',
+  'image/jpg',
+  'image/webp'
+];
+const ALLOWED_EXT = ['.png', '.jpg', '.jpeg', '.webp'];
 
 
 app.set('trust proxy', 1);
@@ -31,6 +47,7 @@ const regLimiter = rateLimit({
 // ===== REGISTER =====
 app.post('/api/register',
   regLimiter,
+  upload.single('screenshot'),
   [
     body('fullName').trim().isLength({ min: 2 }).withMessage('Name required'),
     body('regNumber').trim().isLength({ min: 2 }).withMessage('Register number required'),
@@ -52,6 +69,15 @@ app.post('/api/register',
       });
     }
 
+    // Screenshot file validation
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'Transaction ID screenshot is required.' });
+    }
+    const ext = path.extname(req.file.originalname).toLowerCase();
+    if (!ALLOWED_EXT.includes(ext) || !ALLOWED_MIME.includes(req.file.mimetype)) {
+      return res.status(400).json({ success: false, message: 'Screenshot must be a PNG, JPG, or WEBP image.' });
+    }
+
     const data = {
       fullName: req.body.fullName.trim(),
       regNumber: req.body.regNumber.trim(),
@@ -65,7 +91,7 @@ app.post('/api/register',
     };
 
     try {
-      // Check duplicates via Google Sheets (checks both Sheet1 + Sheet2)
+      // Check duplicates via Google Sheets (checks Sheet2)
       const dupReg = await sheets.checkDuplicate('regNumber', data.regNumber);
       if (dupReg) {
         return res.status(409).json({
@@ -91,6 +117,16 @@ app.post('/api/register',
           });
         }
       }
+
+      // Upload transaction screenshot to Google Drive
+      const screenshotUrl = await drive.uploadFile(
+        req.file.buffer,
+        req.file.originalname,
+        req.file.mimetype,
+        data.fullName,
+        data.regNumber
+      );
+      data.screenshotUrl = screenshotUrl;
 
       // Save to Sheet2 (Sheet1 is never modified)
       await sheets.addRegistration(data);

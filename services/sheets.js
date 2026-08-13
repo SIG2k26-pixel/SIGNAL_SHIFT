@@ -4,20 +4,11 @@ const fs = require('fs');
 
 let sheetsClient = null;
 let spreadsheetId = null;
-const SHEET1 = 'Sheet1';       // Existing sheet — READ ONLY (duplicate checks only)
-const SHEET2 = 'Sheet2';       // New sheet — all form submissions are written here
+const SHEET2 = 'Sheet2';       // All form submissions are written here
 const TEAM_CODE_SHEET = 'TeamCodes';
 
-// Column mapping for Sheet1 duplicate checks (0-indexed in row array)
-// Sheet1: A: Timestamp, B: Name, C: Reg No, D: Email, E: Phone, F: Department, G: College, H: Team, I: Txn ID
-const SHEET1_FIELD_COL = {
-  regNumber: 2,     // Column C
-  email: 3,         // Column D
-  transactionId: 8  // Column I
-};
-
-// Sheet2 columns (0-indexed) — same layout + Team Code in column J
-// A: Timestamp, B: Name, C: Reg No, D: Email, E: Phone, F: Department, G: College, H: Team, I: Txn ID, J: Team Code
+// Sheet2 columns (0-indexed) — same layout + Team Code in column J + Screenshot Link in column K
+// A: Timestamp, B: Name, C: Reg No, D: Email, E: Phone, F: Department, G: College, H: Team, I: Txn ID, J: Team Code, K: Screenshot Link
 const SHEET2_FIELD_COL = {
   regNumber: 2,
   email: 3,
@@ -84,8 +75,6 @@ async function getClient() {
 
 
 // ===== CACHES =====
-let sheet1Cache = null; // Cache for Sheet1 (existing data — read-only)
-let sheet1CacheTime = 0;
 let sheet2Cache = null; // Cache for Sheet2 (new registrations)
 let sheet2CacheTime = 0;
 const CACHE_TTL = 5000; // 5 seconds
@@ -99,28 +88,6 @@ function skipHeader(rows) {
   return isHeader ? rows.slice(1) : rows;
 }
 
-// Fetch all rows from Sheet1 (read-only — existing data, used for duplicate checks)
-async function fetchSheet1Rows() {
-  const now = Date.now();
-  if (sheet1Cache && (now - sheet1CacheTime) < CACHE_TTL) return sheet1Cache;
-
-  const client = await getClient();
-  if (!client) return [];
-
-  try {
-    const res = await client.spreadsheets.values.get({
-      spreadsheetId,
-      range: `${SHEET1}!A:I`  // Only columns A-I (no Team Code in Sheet1)
-    });
-    sheet1Cache = skipHeader(res.data.values || []);
-    sheet1CacheTime = now;
-    return sheet1Cache;
-  } catch (e) {
-    console.error('Sheet1 fetch error:', e.message);
-    return [];
-  }
-}
-
 // Fetch all rows from Sheet2 (new registrations written by this app)
 async function fetchSheet2Rows() {
   const now = Date.now();
@@ -132,7 +99,7 @@ async function fetchSheet2Rows() {
   try {
     const res = await client.spreadsheets.values.get({
       spreadsheetId,
-      range: `${SHEET2}!A:J`
+      range: `${SHEET2}!A:K`
     });
     sheet2Cache = skipHeader(res.data.values || []);
     sheet2CacheTime = now;
@@ -144,10 +111,8 @@ async function fetchSheet2Rows() {
   }
 }
 
-// Invalidate both caches after writes
+// Invalidate cache after writes
 function invalidateCache() {
-  sheet1Cache = null;
-  sheet1CacheTime = 0;
   sheet2Cache = null;
   sheet2CacheTime = 0;
 }
@@ -160,16 +125,16 @@ async function initSheet2() {
   try {
     const res = await client.spreadsheets.values.get({
       spreadsheetId,
-      range: `${SHEET2}!A1:J1`
+      range: `${SHEET2}!A1:K1`
     });
     const rows = res.data.values || [];
     if (rows.length === 0) {
       // Sheet2 exists but empty — write header
       await client.spreadsheets.values.update({
         spreadsheetId,
-        range: `${SHEET2}!A1:J1`,
+        range: `${SHEET2}!A1:K1`,
         valueInputOption: 'USER_ENTERED',
-        requestBody: { values: [['Timestamp', 'Full Name', 'Reg Number', 'Email', 'Phone', 'Department', 'College', 'Team Name', 'Transaction ID', 'Team Code']] }
+        requestBody: { values: [['Timestamp', 'Full Name', 'Reg Number', 'Email', 'Phone', 'Department', 'College', 'Team Name', 'Transaction ID', 'Team Code', 'Screenshot Link']] }
       });
       console.log('Sheet2: header row initialized');
     }
@@ -186,9 +151,9 @@ async function initSheet2() {
         });
         await client.spreadsheets.values.update({
           spreadsheetId,
-          range: `${SHEET2}!A1:J1`,
+          range: `${SHEET2}!A1:K1`,
           valueInputOption: 'USER_ENTERED',
-          requestBody: { values: [['Timestamp', 'Full Name', 'Reg Number', 'Email', 'Phone', 'Department', 'College', 'Team Name', 'Transaction ID', 'Team Code']] }
+          requestBody: { values: [['Timestamp', 'Full Name', 'Reg Number', 'Email', 'Phone', 'Department', 'College', 'Team Name', 'Transaction ID', 'Team Code', 'Screenshot Link']] }
         });
         console.log('Sheet2: created and initialized with header row');
         return true;
@@ -202,29 +167,24 @@ async function initSheet2() {
   }
 }
 
-// Check for duplicate value — checks BOTH Sheet1 (existing) and Sheet2 (new)
+// Check for duplicate value — checks only Sheet2 (new registrations)
 async function checkDuplicate(field, value) {
-  // Check Sheet1 (existing data)
-  const s1ColIndex = SHEET1_FIELD_COL[field];
   // Check Sheet2 (newly submitted data)
   const s2ColIndex = SHEET2_FIELD_COL[field];
+  if (s2ColIndex === undefined) return false;
 
   invalidateCache();
 
-  const [sheet1Rows, sheet2Rows] = await Promise.all([fetchSheet1Rows(), fetchSheet2Rows()]);
+  const sheet2Rows = await fetchSheet2Rows();
 
   const normalizedValue = String(value).trim().toLowerCase();
 
-  const inSheet1 = s1ColIndex !== undefined && sheet1Rows.some(row =>
-    row[s1ColIndex] && String(row[s1ColIndex]).trim().toLowerCase() === normalizedValue
-  );
-  const inSheet2 = s2ColIndex !== undefined && sheet2Rows.some(row =>
+  const inSheet2 = sheet2Rows.some(row =>
     row[s2ColIndex] && String(row[s2ColIndex]).trim().toLowerCase() === normalizedValue
   );
 
-  const isDup = inSheet1 || inSheet2;
-  if (isDup) console.log(`Duplicate found: ${field} = ${value} (Sheet1: ${inSheet1}, Sheet2: ${inSheet2})`);
-  return isDup;
+  if (inSheet2) console.log(`Duplicate found in Sheet2: ${field} = ${value}`);
+  return inSheet2;
 }
 
 // ===== TEAM CODES SHEET =====
@@ -425,14 +385,15 @@ async function addRegistration(data) {
     data.college,
     data.teamName,
     data.transactionId,
-    data.teamCode || ''  // Column J — optional team code
+    data.teamCode || '',        // Column J — optional team code
+    data.screenshotUrl || ''    // Column K — transaction screenshot link
   ]];
 
   try {
     // ✅ Write to Sheet2 only — Sheet1 is never modified
     await client.spreadsheets.values.append({
       spreadsheetId,
-      range: `${SHEET2}!A:J`,
+      range: `${SHEET2}!A:K`,
       valueInputOption: 'USER_ENTERED',
       insertDataOption: 'INSERT_ROWS',
       requestBody: { values }
@@ -458,7 +419,8 @@ async function getAllRegistrations() {
     college: row[6] || '',
     teamName: row[7] || '',
     transactionId: row[8] || '',
-    teamCode: row[9] || ''
+    teamCode: row[9] || '',
+    screenshotUrl: row[10] || ''
   }));
 }
 

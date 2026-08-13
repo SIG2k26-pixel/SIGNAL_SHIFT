@@ -26,6 +26,7 @@ async function sendConfirmation(data) {
         <tr><td style="color:#00d4ff;padding:8px 0;">College</td><td style="color:#ddd;padding:8px 0;">${data.college}</td></tr>
         <tr><td style="color:#00d4ff;padding:8px 0;">Team</td><td style="color:#ddd;padding:8px 0;">${data.teamName}</td></tr>
         <tr><td style="color:#00d4ff;padding:8px 0;">Transaction ID</td><td style="color:#ddd;padding:8px 0;">${data.transactionId}</td></tr>
+        ${data.screenshotUrl ? `<tr><td style="color:#00d4ff;padding:8px 0;">Payment Proof</td><td style="color:#ddd;padding:8px 0;"><a href="${data.screenshotUrl}" style="color:#b347d9;">View screenshot</a></td></tr>` : ''}
       </table>
       <p style="color:#888;font-size:13px;margin-top:20px;">Keep this email as your confirmation. See you at the hackathon!</p>
     </div>

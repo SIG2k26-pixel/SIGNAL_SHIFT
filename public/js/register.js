@@ -27,6 +27,39 @@
   // All fields are required (including teamCode)
   const requiredFields = ['fullName', 'regNumber', 'email', 'phone', 'department', 'college', 'teamName', 'teamCode', 'transactionId'];
 
+  // ===== SCREENSHOT FILE VALIDATION =====
+  const screenshotInput = document.getElementById('screenshot');
+  const ALLOWED_SCREENSHOT_EXTS = ['.png', '.jpg', '.jpeg', '.webp'];
+  const MAX_FILE_SIZE = 4 * 1024 * 1024; // 4 MB
+
+  function validateScreenshot() {
+    const errEl = document.getElementById('err-screenshot');
+    const group = screenshotInput.closest('.form-group');
+    const file = screenshotInput.files[0];
+
+    if (!file) {
+      group.classList.add('error');
+      errEl.textContent = 'Please upload a screenshot of your transaction.';
+      return false;
+    }
+    const ext = '.' + file.name.split('.').pop().toLowerCase();
+    if (!ALLOWED_SCREENSHOT_EXTS.includes(ext)) {
+      group.classList.add('error');
+      errEl.textContent = 'Only PNG, JPG, or WEBP images are allowed.';
+      return false;
+    }
+    if (file.size > MAX_FILE_SIZE) {
+      group.classList.add('error');
+      errEl.textContent = 'File too large. Max size is 4 MB.';
+      return false;
+    }
+    group.classList.remove('error');
+    errEl.textContent = '';
+    return true;
+  }
+
+  screenshotInput.addEventListener('change', validateScreenshot);
+
   // Real-time validation (required fields only)
   requiredFields.forEach(field => {
     const el = document.getElementById(field);
@@ -55,15 +88,17 @@
     requiredFields.forEach(field => {
       if (!validateField(field)) valid = false;
     });
+    if (!validateScreenshot()) valid = false;
     return valid;
   }
 
   function getFormData() {
-    const data = {};
+    const fd = new FormData();
     requiredFields.forEach(field => {
-      data[field] = document.getElementById(field).value.trim();
+      fd.append(field, document.getElementById(field).value.trim());
     });
-    return data;
+    fd.append('screenshot', screenshotInput.files[0]);
+    return fd;
   }
 
   // Submit
@@ -74,23 +109,34 @@
       setTimeout(() => form.classList.remove('shake'), 500);
       return;
     }
-    const data = getFormData();
+    const fd = getFormData();
     submitBtn.classList.add('loading');
     submitBtn.disabled = true;
 
     try {
       const res = await fetch('/api/register', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
+        // No Content-Type header — browser sets it with multipart boundary automatically
+        body: fd
       });
       const result = await res.json();
 
       if (res.ok && result.success) {
-        lastSubmission = data;
-        successMsg.textContent = `Welcome, ${data.fullName}! Your registration is confirmed. Team: ${data.teamName}`;
+        lastSubmission = {
+          fullName: fd.get('fullName'),
+          regNumber: fd.get('regNumber'),
+          email: fd.get('email'),
+          phone: fd.get('phone'),
+          department: fd.get('department'),
+          college: fd.get('college'),
+          teamName: fd.get('teamName'),
+          transactionId: fd.get('transactionId'),
+          teamCode: fd.get('teamCode')
+        };
+        successMsg.textContent = `Welcome, ${fd.get('fullName')}! Your registration is confirmed. Team: ${fd.get('teamName')}`;
         successModal.classList.add('active');
         form.reset();
+        screenshotInput.value = '';
         // Confetti
         if (typeof confetti !== 'undefined') {
           confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 }, colors: ['#00d4ff', '#b347d9', '#ff006e', '#fff'] });

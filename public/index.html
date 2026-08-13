@@ -199,6 +199,12 @@
             <input type="text" id="transactionId" name="transactionId" placeholder="Payment transaction ID" required>
             <div class="error-msg" id="err-transactionId"></div>
           </div>
+          <div class="form-group">
+            <label for="screenshot">Transaction ID Screenshot</label>
+            <input type="file" id="screenshot" name="screenshot" accept=".png,.jpg,.jpeg,.webp" required>
+            <div class="field-hint">Upload a screenshot of your payment as proof. PNG, JPG, or WEBP (max 4 MB).</div>
+            <div class="error-msg" id="err-screenshot"></div>
+          </div>
           <button type="submit" class="submit-btn" id="submit-btn">
             <span class="btn-text">⚡ Submit Registration</span>
             <div class="spinner"></div>
