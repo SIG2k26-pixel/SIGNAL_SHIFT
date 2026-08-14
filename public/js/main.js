@@ -205,11 +205,38 @@
 
   /* ---------- SMOOTH SCROLL ---------- */
   document.querySelectorAll('a[href^="#"]').forEach(a => {
+    if (a.id === 'cta-register') return;
     a.addEventListener('click', (e) => {
       e.preventDefault();
       const target = document.querySelector(a.getAttribute('href'));
       if (target) target.scrollIntoView({ behavior: 'smooth' });
     });
   });
+
+  /* ---------- REGISTRATION NOTE POPUP ---------- */
+  const noteModal = document.getElementById('note-modal');
+  const ctaRegister = document.getElementById('cta-register');
+  const noteContinue = document.getElementById('note-continue');
+
+  if (noteModal && ctaRegister && noteContinue) {
+    ctaRegister.addEventListener('click', (e) => {
+      e.preventDefault();
+      noteModal.classList.add('active');
+    });
+
+    noteContinue.addEventListener('click', () => {
+      noteModal.classList.remove('active');
+      const registerSection = document.getElementById('register');
+      if (registerSection) registerSection.scrollIntoView({ behavior: 'smooth' });
+    });
+
+    noteModal.addEventListener('click', (e) => {
+      if (e.target === noteModal) {
+        noteModal.classList.remove('active');
+        const registerSection = document.getElementById('register');
+        if (registerSection) registerSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  }
 
 })();

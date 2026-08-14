@@ -411,6 +411,14 @@ body {
 @keyframes modalIn { from{opacity:0;transform:scale(0.9)} to{opacity:1;transform:scale(1)} }
 .modal.success { border-color: rgba(0,212,255,0.3); }
 .modal.error { border-color: rgba(255,0,110,0.3); }
+.modal.notice { border-color: rgba(0,212,255,0.4); text-align:left; max-width:560px; max-height:85vh; overflow-y:auto; }
+.modal.notice h3 { text-align:center; color:var(--electric-blue); }
+.modal.notice .modal-icon { text-align:center; }
+.modal.notice .note-body p { margin-bottom:0.9rem; }
+.modal.notice .note-body ul { margin:0 0 0.9rem 1.2rem; }
+.modal.notice .note-body li { color:var(--text-muted); line-height:1.7; margin-bottom:0.3rem; }
+.modal.notice .note-body strong { color:#fff; }
+.modal.notice .modal-btn { width:100%; margin-top:0.5rem; }
 .modal .modal-icon { font-size:3rem; margin-bottom:1rem; }
 .modal h3 {
   font-family:var(--font-heading); font-size:1.3rem;
