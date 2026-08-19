@@ -118,15 +118,20 @@ app.post('/api/register',
         }
       }
 
-      // Upload transaction screenshot to Google Drive
-      const screenshotUrl = await drive.uploadFile(
-        req.file.buffer,
-        req.file.originalname,
-        req.file.mimetype,
-        data.fullName,
-        data.regNumber
-      );
-      data.screenshotUrl = screenshotUrl;
+      // Upload transaction screenshot to Google Drive (non-blocking — registration saves even if upload fails)
+      try {
+        const screenshotUrl = await drive.uploadFile(
+          req.file.buffer,
+          req.file.originalname,
+          req.file.mimetype,
+          data.fullName,
+          data.regNumber
+        );
+        data.screenshotUrl = screenshotUrl;
+      } catch (driveErr) {
+        console.error('Drive upload failed (registration will save without screenshot):', driveErr.message);
+        data.screenshotUrl = '';
+      }
 
       // Save to Sheet2 (Sheet1 is never modified)
       await sheets.addRegistration(data);
