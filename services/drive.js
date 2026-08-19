@@ -22,19 +22,7 @@ async function getClient() {
   }
 
   let auth;
-  if (process.env.DRIVE_CLIENT_ID && process.env.DRIVE_CLIENT_SECRET && process.env.DRIVE_REFRESH_TOKEN) {
-    try {
-      auth = new google.auth.OAuth2(
-        process.env.DRIVE_CLIENT_ID,
-        process.env.DRIVE_CLIENT_SECRET
-      );
-      auth.setCredentials({ refresh_token: process.env.DRIVE_REFRESH_TOKEN });
-      console.log('Google Drive: using OAuth2 (owner Gmail account)');
-    } catch (e) {
-      console.error('Google Drive: failed to init OAuth2 —', e.message);
-      return null;
-    }
-  } else if (process.env.GOOGLE_CREDENTIALS_JSON) {
+  if (process.env.GOOGLE_CREDENTIALS_JSON) {
     try {
       const credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS_JSON);
       if (credentials.private_key) {
@@ -44,9 +32,21 @@ async function getClient() {
         credentials,
         scopes: ['https://www.googleapis.com/auth/drive.file']
       });
-      console.log('Google Drive: using GOOGLE_CREDENTIALS_JSON env var');
+      console.log('Google Drive: using service account (GOOGLE_CREDENTIALS_JSON)');
     } catch (e) {
       console.error('Google Drive: failed to parse GOOGLE_CREDENTIALS_JSON —', e.message);
+      return null;
+    }
+  } else if (process.env.DRIVE_CLIENT_ID && process.env.DRIVE_CLIENT_SECRET && process.env.DRIVE_REFRESH_TOKEN) {
+    try {
+      auth = new google.auth.OAuth2(
+        process.env.DRIVE_CLIENT_ID,
+        process.env.DRIVE_CLIENT_SECRET
+      );
+      auth.setCredentials({ refresh_token: process.env.DRIVE_REFRESH_TOKEN });
+      console.log('Google Drive: using OAuth2 (owner Gmail account)');
+    } catch (e) {
+      console.error('Google Drive: failed to init OAuth2 —', e.message);
       return null;
     }
   } else {
