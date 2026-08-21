@@ -123,7 +123,7 @@
   });
 
   /* ---------- COUNTDOWN TIMER ---------- */
-  const eventDate = new Date('2026-08-28T09:00:00+05:30').getTime();
+  const eventDate = new Date('2026-08-27T17:00:00+05:30').getTime();
   function updateCountdown() {
     const now = Date.now();
     const diff = Math.max(0, eventDate - now);
